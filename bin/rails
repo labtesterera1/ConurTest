@@ -1,0 +1,16 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+if ENV['REQUIRE_SIMPLECOV'] == 'true'
+  require 'simplecov'
+  puts "Required simplecov"
+end
+
+begin
+  load(File.expand_path('../spring', __FILE__))
+rescue LoadError => e
+  raise unless e.message.include?('spring')
+end
+APP_PATH = File.expand_path('../../config/application', __FILE__)
+require_relative '../config/boot'
+require 'rails/commands'

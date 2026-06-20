@@ -1,0 +1,12 @@
+#!/bin/bash -ex
+
+path=$1
+if [ "$path" == "" ]; then
+  path=cucumber/api/features/
+else
+  path=cucumber/api/features/"$path"
+fi
+
+# TODO: cleanup overlap between between -r requires here and in yaml
+# TODO: add note about why we're using exec here
+exec ./bin/cucumber -r cucumber/api/features/support/ -r cucumber/api/features/step_definitions/ $path

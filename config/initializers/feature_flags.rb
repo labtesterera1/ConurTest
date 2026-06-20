@@ -1,0 +1,68 @@
+# frozen_string_literal: true
+
+require Rails.root.join('lib/conjur/feature_flags')
+
+Rails.application.configure do
+  # Loads Feature Flag configuration.
+  #
+  # The `feature_flags` arguement is an array of valid feature flags (as Ruby
+  # Symbols) used in Conjur to limit or prevent access to a new feature.
+  #
+  # By default, all feature flags are toggled "Off".  A feature can be enabled
+  # by setting an environment variable of the following form:
+  #
+  # CONJUR_FEATURE_<feature_name>_ENABLED=true
+  #
+  # <feature_name> must match the flag provide in the `feature_flags` arguement.
+  #
+  # The feature flag is available for using the following form:
+  #
+  # Rails.configuration.feature_flags.enabled?(:feature_name)
+
+  # Hash of feature flags. The hash key is the feature flag name, the value is
+  # the status if no flag is given (its default state).
+  # ex. { telemetry: true }
+  feature_flags = {
+    # When enabled, policy load extensions cause the policy orchestration
+    # to emit lifecycle event callbacks (e.g. before_insert, after_load_policy)
+    # during policy load.
+    policy_load_extensions: false,
+
+    # If enabled, the Roles API will emit callbacks to extensions for
+    # before/after events when role memberships are added or removed
+    # through the REST API.
+    roles_api_extensions: false,
+
+    # When enabled, the Issuers API is available to create and manage
+    # dynamic secret issuers. Thi also enables retrieval of dynamic secrets
+    # through the secret GET API. This requires an available ephemeral secrets
+    # service configured with the `EPHEMERAL_SECRETS_SERVICE_*` environment
+    # variables.
+    dynamic_secrets: false,
+
+    # When enabled, installs and makes available those authenticators depend on
+    # the external authenticator service. Currently, this includes only the.
+    # X.509 certificate authenticator.
+    authenticator_service: false,
+
+    # When enabled, slosilo encryption key will be cached to prevent requesting
+    # it from db for each use.
+    slosilo_key_cache: true,
+
+    # When enabled, the v1 OIDC authenticate endpoint (POST /authn-oidc/...) is available
+    # for workload authentication. Disabled by default because the raw id_token submission path
+    # does not verify iss/aud claims. Prefer authn-jwt, or other authenticators for workloads.
+    oidc_authenticator_v1: false,
+
+    # When enabled, V1 endpoints enforce strict query-parameter validation: unknown
+    # parameters raise a 422 instead of logging a warning. V2 endpoints are always strict.
+    strict_params: false,
+
+  }.freeze
+
+  config.feature_flags = Conjur::FeatureFlags::Features.new(
+    logger: Rails.logger,
+    environment_settings: ENV,
+    feature_flags: feature_flags
+  )
+end
