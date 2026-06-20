@@ -1,0 +1,33 @@
+- !policy
+  id: myapp
+  body:
+  - &variables
+    - !variable ssl_cert
+    - !variable ssl_key
+  
+  - !layer
+    annotations:
+      description: My application layer
+
+  - !host-factory
+    layers: [ !layer ]
+  
+  - !permit
+    resource: *variables
+    privileges: [ read, execute ]
+    roles: !layer
+
+- !group developers
+
+- !user
+  id: alice
+
+- !host myapp-01
+
+- !grant
+  role: !group developers
+  member: !user alice
+
+- !grant
+  role: !layer myapp
+  member: !host myapp-01
