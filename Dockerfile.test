@@ -1,0 +1,42 @@
+ARG VERSION=latest
+ARG BASE_TAG=latest
+ARG REGISTRY=docker.io
+
+FROM ${REGISTRY}/cyberark/ubuntu-ruby-builder:${BASE_TAG} as builder
+
+ENV CONJUR_HOME=/opt/conjur-server \
+    GEM_HOME=/usr/local/bundle
+
+WORKDIR ${CONJUR_HOME}
+
+COPY Gemfile Gemfile.lock ./
+COPY ./gems/ ./gems/
+
+RUN bundle config unset --local without && \
+    bundle config unset --local path && \
+    bundle config set --local deployment false && \
+    bundle config --local jobs "$(nproc --all)" && \
+    # this is a workaround to allow installation of ruby-debug-ide, for unknown
+    # reasons the first attempt to install it fails but the subsequent call is
+    # successful, therefore we try to install again if the first invocation fails
+    (bundle install || bundle install) && \
+    # removing CA bundle of httpclient gem
+    find / -name 'httpclient-*' -type d -exec find {} -name '*.pem' -type f -delete \; && \
+    find / -name 'httpclient-*' -type d -exec find {} -name '*.key' -type f -delete \; && \
+    # remove the private key in the oidc_connect gem spec directory
+    find / -name openid_connect -type d -exec find {} -name '*.pem' -type f -delete \;
+
+# Cleanup any plugin data from bundle
+RUN rm -rf .bundle/plugin
+
+FROM conjur:${VERSION}
+
+ENV GEM_HOME=/usr/local/bundle
+ENV PATH="${GEM_HOME}/bin:${PATH}"
+
+RUN bundle config unset --local without && \
+    bundle config unset --local path && \
+    bundle config set --local deployment false && \
+    gem install rake
+
+COPY --from=builder ${GEM_HOME} ${GEM_HOME}

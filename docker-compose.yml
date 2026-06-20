@@ -1,0 +1,10 @@
+services:
+  apidocs:
+    build:
+      context: ./apidocs
+      dockerfile: Dockerfile.apidocs
+    image: conjur-apidocs
+    ports:
+      - 3000:3000
+    volumes:
+      - ./apidocs/src:/home/node/src

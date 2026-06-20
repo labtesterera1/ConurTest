@@ -1,0 +1,48 @@
+# kics-scan disable=fd54f200-402c-4333-a5a4-36ef6709af2f
+ARG BASE_TAG=latest
+ARG REGISTRY=docker.io
+
+FROM ${REGISTRY}/cyberark/ubuntu-ruby-builder:${BASE_TAG} AS builder
+
+ARG CONJUR_HOME=/src/opt/conjur/possum
+
+WORKDIR ${CONJUR_HOME}
+
+COPY . .
+
+RUN bundle config set --local without 'test development' && \
+    bundle config set --local deployment true && \
+    bundle config set --local path /usr/local/bundle && \
+    bundle install --prefer-local && \
+    # Remove private keys brought in by gems in their test data
+    find / -name 'openid_connect-*' -type d -exec find {} -name '*.pem' -type f -delete \; && \
+    find / -name 'httpclient-*' -type d -exec find {} -name '*.key' -type f -delete \; && \
+    find / -name 'httpclient-*' -type d -exec find {} -name '*.pem' -type f -delete \;
+
+# Cleanup any plugin data from bundle
+RUN rm -rf .bundle/plugin
+
+FROM alpine:latest
+
+ARG CONJUR_HOME=/src/opt/conjur/possum
+
+WORKDIR /src
+
+COPY --from=builder ${CONJUR_HOME} ${CONJUR_HOME}
+COPY --from=builder /usr/local/bundle usr/local/bundle
+
+RUN mkdir -p usr/local/bin
+RUN ln -sf /opt/conjur/possum/bin/conjur-possum usr/local/bin/
+
+RUN mkdir -p etc/conjur/nginx.d
+COPY distrib/nginx/* etc/conjur/nginx.d/
+
+RUN mkdir -p etc/service/conjur/possum/log
+RUN ln -sf /etc/service/conjur/plugin-service etc/service/conjur/possum/run
+RUN ln -sf /etc/service/conjur/plugin-logger  etc/service/conjur/possum/log/run
+
+RUN mkdir -p opt/conjur/etc
+COPY distrib/conjur/etc/* opt/conjur/etc/
+
+RUN mkdir -p opt/conjur/possum/config
+RUN rm -r opt/conjur/possum/distrib

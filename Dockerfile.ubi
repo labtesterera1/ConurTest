@@ -1,0 +1,92 @@
+# Ruby builder
+ARG BASE_TAG=latest
+ARG REGISTRY=docker.io
+
+FROM ${REGISTRY}/cyberark/ubi-ruby-builder:${BASE_TAG} as builder
+
+ENV CONJUR_HOME=/opt/conjur-server
+
+WORKDIR ${CONJUR_HOME}
+
+COPY Gemfile Gemfile.lock ./
+COPY ./gems/ ./gems/
+
+RUN bundle config set --local without 'test development' && \
+    bundle config set --local deployment true && \
+    bundle config set --local path /usr/local/bundle && \
+    bundle config --local jobs "$(nproc --all)" && \
+    bundle install --prefer-local && \
+    # removing CA bundle of httpclient gem
+    find / -name 'httpclient-*' -type d -exec find {} -name '*.pem' -type f -delete \; && \
+    find / -name 'httpclient-*' -type d -exec find {} -name '*.key' -type f -delete \; && \
+    # remove the private key in the oidc_connect gem spec directory
+    find / -name 'openid_connect-*' -type d -exec find {} -name '*.pem' -type f -delete \;
+
+# Cleanup any plugin data from bundle
+RUN rm -rf .bundle/plugin
+
+# Conjur Base Image (UBI)
+FROM ${REGISTRY}/cyberark/ubi-ruby-fips:${BASE_TAG}
+ARG VERSION
+
+LABEL name="conjur-ubi" \
+      vendor="CyberArk" \
+      version="$VERSION" \
+      release="$VERSION" \
+      summary="Conjur UBI-based image" \
+      description="Conjur provides secrets management and machine identity for modern infrastructure." \
+      maintainer="CyberArk"
+
+ENV PORT=8080 \
+    LOG_DIR=${CONJUR_HOME}/log \
+    TMP_DIR=${CONJUR_HOME}/tmp \
+    SSL_CERT_DIRECTORY=/opt/conjur/etc/ssl \
+    RAILS_ENV=production \
+    CONJUR_HOME=/opt/conjur-server
+
+ENV PATH="${PATH}:${CONJUR_HOME}/bin"
+
+# Create conjur user with one that has known gid / uid.
+RUN groupadd -r conjur \
+             -g 777 && \
+    useradd -c "conjur runner account" \
+            -g conjur \
+            -d "$HOME" \
+            -r \
+            -m \
+            -s /bin/bash \
+            -u 777 conjur
+
+WORKDIR ${CONJUR_HOME}
+
+# Ensure few required GID0-owned folders to run as a random UID (OpenShift requirement)
+RUN mkdir -p "$TMP_DIR" \
+             "$LOG_DIR" \
+             "$SSL_CERT_DIRECTORY/ca" \
+             "$SSL_CERT_DIRECTORY/cert" \
+             /run/authn-local && \
+    # Use GID of 0 since that is what OpenShift will want to be able to read things
+    chown -R conjur:0 "$LOG_DIR" \
+                   "$TMP_DIR" \
+                   "$SSL_CERT_DIRECTORY" \
+                   "$CONJUR_HOME" \
+                   /run/authn-local && \
+    # We need open group permissions in these directories since OpenShift won't
+    # match our UID when we try to write files to them
+    chmod -R 770 "$LOG_DIR" \
+              "$TMP_DIR" \
+              "$SSL_CERT_DIRECTORY" \
+              "$CONJUR_HOME" \
+              /run/authn-local
+
+COPY --chown=conjur:0 . .
+COPY --from=builder --chown=conjur:0 ${CONJUR_HOME} ${CONJUR_HOME}
+COPY --from=builder /usr/local/bundle /usr/local/bundle
+
+EXPOSE ${PORT}
+
+COPY LICENSE.md /licenses/
+
+USER conjur
+
+ENTRYPOINT ["conjurctl"]

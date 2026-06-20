@@ -1,0 +1,249 @@
+policy: >
+  --tags @policy
+  --format pretty
+  -r cucumber/policy
+  cucumber/policy
+
+api: >
+  --tags @api
+  --format pretty
+  -r cucumber/api/features/support/logs_helpers.rb
+  -r cucumber/api/features/step_definitions/logs_steps.rb
+  -r cucumber/_authenticators_common/features/support/conjur_token.rb
+  -r cucumber/_authenticators_common/features/support/authenticator_helpers.rb
+  -r cucumber/_authenticators_common/features/step_definitions/authn_common_steps.rb
+  -r cucumber/policy/features/step_definitions/error_steps.rb
+  -r cucumber/policy/features/support/policy_helpers.rb
+  -r cucumber/api
+  cucumber/api
+
+# NOTE: the directory '_authenticators_common' needs to start with an underscore
+#       so every authenticator directory is below it in the hierarchy. If the authenticator
+#       directory is above it (e.g authenticators_azure is above authenticators_common)
+#       then we will not be able to load the methods defined in authenticators_common
+authenticators_config: >
+  --tags @authenticators_config
+  --format pretty
+  -r cucumber/api/features/support/step_def_transforms.rb
+  -r cucumber/api/features/support/rest_helpers.rb
+  -r cucumber/api/features/step_definitions/request_steps.rb
+  -r cucumber/api/features/step_definitions/user_steps.rb
+  -r cucumber/api/features/support/logs_helpers.rb
+  -r cucumber/api/features/step_definitions/logs_steps.rb
+  -r cucumber/policy/features/support/policy_helpers.rb
+  -r cucumber/policy/features/step_definitions/policy_steps.rb
+  -r cucumber/_authenticators_common
+  -r cucumber/authenticators_config
+  cucumber/authenticators_config
+
+authenticators_status: >
+  --tags @authenticators_status
+  --format pretty
+  -r cucumber/api/features/support/rest_helpers.rb
+  -r cucumber/api/features/support/step_def_transforms.rb
+  -r cucumber/api/features/step_definitions/request_steps.rb
+  -r cucumber/api/features/step_definitions/user_steps.rb
+  -r cucumber/api/features/support/logs_helpers.rb
+  -r cucumber/api/features/step_definitions/logs_steps.rb
+  -r cucumber/api/features/support/authz_helpers.rb
+  -r cucumber/api/features/step_definitions/authz_steps.rb
+  -r cucumber/policy/features/support/policy_helpers.rb
+  -r cucumber/policy/features/step_definitions/policy_steps.rb
+  -r cucumber/_authenticators_common
+  -r cucumber/authenticators_status
+  cucumber/authenticators_status
+
+authenticators_ldap: >
+  --tags @authenticators_ldap
+  --format pretty
+  -r cucumber/api/features/support/step_def_transforms.rb
+  -r cucumber/api/features/support/rest_helpers.rb
+  -r cucumber/api/features/step_definitions/request_steps.rb
+  -r cucumber/api/features/step_definitions/user_steps.rb
+  -r cucumber/api/features/support/logs_helpers.rb
+  -r cucumber/api/features/step_definitions/logs_steps.rb
+  -r cucumber/api/features/support/authz_helpers.rb
+  -r cucumber/api/features/step_definitions/authz_steps.rb
+  -r cucumber/policy/features/support/policy_helpers.rb
+  -r cucumber/policy/features/step_definitions/policy_steps.rb
+  -r cucumber/_authenticators_common
+  -r cucumber/authenticators_ldap
+  cucumber/authenticators_ldap
+
+authenticators_oidc: >
+  --tags @authenticators_oidc
+  --format pretty
+  -r cucumber/api/features/support/step_def_transforms.rb
+  -r cucumber/api/features/support/rest_helpers.rb
+  -r cucumber/api/features/step_definitions/request_steps.rb
+  -r cucumber/api/features/step_definitions/user_steps.rb
+  -r cucumber/api/features/support/logs_helpers.rb
+  -r cucumber/api/features/step_definitions/logs_steps.rb
+  -r cucumber/policy/features/step_definitions/login_steps.rb
+  -r cucumber/api/features/support/authz_helpers.rb
+  -r cucumber/api/features/step_definitions/authz_steps.rb
+  -r cucumber/policy/features/support/policy_helpers.rb
+  -r cucumber/policy/features/step_definitions/policy_steps.rb
+  -r cucumber/policy/features/step_definitions/secrets_steps.rb
+  -r cucumber/_authenticators_common
+  -r cucumber/authenticators_ldap/features/support/authn_ldap_helper.rb
+  -r cucumber/authenticators_ldap/features/step_definitions/authn_ldap_steps.rb
+  -r cucumber/authenticators_status/features/step_definitions/authn_status_steps.rb
+  -r cucumber/authenticators_oidc
+  cucumber/authenticators_oidc
+
+authenticators_cert: >
+  --tags @authenticators_cert
+  --format pretty
+  -r cucumber/api/features/support/step_def_transforms.rb
+  -r cucumber/api/features/support/rest_helpers.rb
+  -r cucumber/api/features/step_definitions/request_steps.rb
+  -r cucumber/api/features/step_definitions/user_steps.rb
+  -r cucumber/api/features/support/logs_helpers.rb
+  -r cucumber/api/features/step_definitions/logs_steps.rb
+  -r cucumber/policy/features/step_definitions/login_steps.rb
+  -r cucumber/api/features/support/authz_helpers.rb
+  -r cucumber/api/features/step_definitions/authz_steps.rb
+  -r cucumber/policy/features/support/policy_helpers.rb
+  -r cucumber/policy/features/step_definitions/policy_steps.rb
+  -r cucumber/policy/features/step_definitions/secrets_steps.rb
+  -r cucumber/_authenticators_common
+  -r cucumber/authenticators_status/features/step_definitions/authn_status_steps.rb
+  -r cucumber/authenticators_cert
+  cucumber/authenticators_cert
+
+authenticators_gcp: >
+  --tags @authenticators_gcp
+  --format pretty
+  -r cucumber/api/features/support/step_def_transforms.rb
+  -r cucumber/api/features/support/rest_helpers.rb
+  -r cucumber/api/features/support/ssh_helpers.rb
+  -r cucumber/api/features/step_definitions/request_steps.rb
+  -r cucumber/api/features/step_definitions/user_steps.rb
+  -r cucumber/api/features/support/logs_helpers.rb
+  -r cucumber/api/features/step_definitions/logs_steps.rb
+  -r cucumber/api/features/support/authz_helpers.rb
+  -r cucumber/api/features/step_definitions/authz_steps.rb
+  -r cucumber/policy/features/support/policy_helpers.rb
+  -r cucumber/policy/features/step_definitions/policy_steps.rb
+  -r cucumber/_authenticators_common
+  -r cucumber/authenticators_status/features/step_definitions/authn_status_steps.rb
+  -r cucumber/authenticators_gcp
+  cucumber/authenticators_gcp
+
+authenticators_iam: >
+  --tags @authenticators_iam
+  --format pretty
+  -r cucumber/api/features/support/step_def_transforms.rb
+  -r cucumber/api/features/support/rest_helpers.rb
+  -r cucumber/api/features/support/ssh_helpers.rb
+  -r cucumber/api/features/step_definitions/request_steps.rb
+  -r cucumber/api/features/step_definitions/user_steps.rb
+  -r cucumber/api/features/support/logs_helpers.rb
+  -r cucumber/api/features/step_definitions/logs_steps.rb
+  -r cucumber/api/features/support/authz_helpers.rb
+  -r cucumber/api/features/step_definitions/authz_steps.rb
+  -r cucumber/policy/features/support/policy_helpers.rb
+  -r cucumber/policy/features/step_definitions/policy_steps.rb
+  -r cucumber/_authenticators_common
+  -r cucumber/authenticators_status/features/step_definitions/authn_status_steps.rb
+  -r cucumber/authenticators_iam
+  cucumber/authenticators_iam
+
+authenticators_azure: >
+  --tags @authenticators_azure
+  --format pretty
+  -r cucumber/api/features/support/step_def_transforms.rb
+  -r cucumber/api/features/support/rest_helpers.rb
+  -r cucumber/api/features/step_definitions/request_steps.rb
+  -r cucumber/api/features/step_definitions/user_steps.rb
+  -r cucumber/api/features/support/ssh_helpers.rb
+  -r cucumber/api/features/support/logs_helpers.rb
+  -r cucumber/api/features/step_definitions/logs_steps.rb
+  -r cucumber/api/features/support/authz_helpers.rb
+  -r cucumber/api/features/step_definitions/authz_steps.rb
+  -r cucumber/policy/features/support/policy_helpers.rb
+  -r cucumber/policy/features/step_definitions/policy_steps.rb
+  -r cucumber/_authenticators_common
+  -r cucumber/authenticators_status/features/step_definitions/authn_status_steps.rb
+  -r cucumber/authenticators_azure
+  cucumber/authenticators_azure
+
+authenticators_jwt: >
+  --tags "not @skip and @authenticators_jwt"
+  --format pretty
+  -r cucumber/api/features/step_definitions/user_steps.rb
+  -r cucumber/api/features/step_definitions/request_steps.rb
+  -r cucumber/api/features/support/step_def_transforms.rb
+  -r cucumber/api/features/support/rest_helpers.rb
+  -r cucumber/api/features/support/ssh_helpers.rb
+  -r cucumber/api/features/support/logs_helpers.rb
+  -r cucumber/api/features/step_definitions/logs_steps.rb
+  -r cucumber/api/features/support/authz_helpers.rb
+  -r cucumber/api/features/step_definitions/authz_steps.rb
+  -r cucumber/policy/features/support/policy_helpers.rb
+  -r cucumber/policy/features/step_definitions/policy_steps.rb
+  -r cucumber/_authenticators_common
+  -r cucumber/authenticators_status/features/step_definitions/authn_status_steps.rb
+  -r cucumber/authenticators_jwt
+  -r cucumber/authenticators_oidc
+  cucumber/authenticators_jwt
+
+# NOTE: We have to require the needed files from "api" individually, because
+#       if you mass require the folder it includes "api"s env.rb, which screws
+#       things up because (I think) it sets ENV['CONJUR_ACCOUNT'].  Cucumber
+#       profiles need to be thought through better and refactored most likely.
+#       
+rotators: >
+  --tags 'not @manual and @rotators'
+  --format pretty
+  -r cucumber/authenticators/features/support/hooks.rb
+  -r cucumber/api/features/support/step_def_transforms.rb
+  -r cucumber/api/features/support/rest_helpers.rb
+  -r cucumber/api/features/step_definitions/request_steps.rb
+  -r cucumber/api/features/step_definitions/user_steps.rb
+  -r cucumber/policy/features/step_definitions/policy_steps.rb
+  -r cucumber/policy/features/support/policy_helpers.rb
+  -r cucumber/rotators
+  cucumber/rotators
+
+manual-rotators: >
+  --tags @manual
+  --format pretty
+  -r cucumber/rotators/features/support
+  -r cucumber/rotators/features/step_definitions
+  cucumber/rotators
+
+proxy: >
+  --tags @proxy
+  --format pretty
+  -r cucumber/api/features/support/step_def_transforms.rb
+  -r cucumber/api/features/support/rest_helpers.rb
+  -r cucumber/api/features/support/logs_helpers.rb
+  -r cucumber/api/features/step_definitions/request_steps.rb
+  -r cucumber/api/features/step_definitions/user_steps.rb
+  -r cucumber/policy/features/support/policy_helpers.rb
+  -r cucumber/policy/features/step_definitions/policy_steps.rb
+  -r cucumber/_authenticators_common
+  -r cucumber/authenticators_status/features/step_definitions/authn_status_steps.rb
+  cucumber/proxy
+
+ipv6: >
+  --tags @ipv6
+  --format pretty
+  -r cucumber/api/features/support/step_def_transforms.rb
+  -r cucumber/api/features/support/rest_helpers.rb
+  -r cucumber/api/features/step_definitions/request_steps.rb
+  -r cucumber/api/features/step_definitions/user_steps.rb
+  -r cucumber/api/features/support/logs_helpers.rb
+  -r cucumber/api/features/step_definitions/logs_steps.rb
+  -r cucumber/policy/features/step_definitions/login_steps.rb
+  -r cucumber/api/features/support/authz_helpers.rb
+  -r cucumber/api/features/step_definitions/authz_steps.rb
+  -r cucumber/policy/features/support/policy_helpers.rb
+  -r cucumber/policy/features/step_definitions/policy_steps.rb
+  -r cucumber/policy/features/step_definitions/secrets_steps.rb
+  -r cucumber/_authenticators_common
+  -r cucumber/authenticators_oidc
+  -r cucumber/authenticators_jwt
+  cucumber/ipv6
